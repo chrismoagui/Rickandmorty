@@ -1,0 +1,62 @@
+version: "3.8"
+
+services: 
+    backend:
+          container_name: "rest_api"
+          restart: on-failure
+          build: 
+            context: "."
+            dockerfile: Dockerfile
+          ports:
+            - 8080:8080
+          volumes:
+            - ./backend/api:/usr/src/app/
+          depends_on: 
+            - db
+          networks: 
+            - fullstack
+    db:
+          image: mysql:5.7.22
+          container_name: "database"
+          restart: always
+          environment: 
+               MYSQL_DATABASE: admin
+               MYSQL_USER: root
+               MYSQL_PASSWORD: root
+               MYSQL_ROOT_PASSWORD: "admin"
+          volumes: 
+              - ./backend/.dbdata:/var/lib/mysql
+              - ./init-script.sql:/docker-entrypoint-initdb.d/init-script.sql
+          ports: 
+              - 33066:3306
+          networks: 
+              - fullstack
+    # frontend:
+    #       container_name: "frontend"
+    #       stdin_open: true
+    #       environment:
+    #         - CHOKIDAR_USEPOLLING=true
+    #       build:
+    #         dockerfile: Dockerfile
+    #         context: ./frontend
+    #       depends_on:
+    #         - backend
+    #       ports:
+    #         - 3000:3000
+    #       restart: always
+    #       volumes:         
+    #         - /frontend/node_modules
+    #         - /app/node_modules
+    #         - ./frontend:/app
+    #       command: npm run start
+    #       networks: 
+    #           - fullstack
+
+volumes:
+  backend: 
+  api:
+  #frontend:
+
+networks: 
+  fullstack:
+    driver: bridge
